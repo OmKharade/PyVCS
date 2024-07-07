@@ -15,7 +15,7 @@ PyVCS is a lightweight version control system implemented in Python. The aim wit
 Clone the repository:
 
 ```shell
-git clone https://github.com/yourusername/pyvcs.git
+git clone https://github.com/OmKharade/pyvcs.git
 cd pyvcs
 ```
 
