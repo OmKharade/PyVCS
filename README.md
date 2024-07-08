@@ -26,23 +26,20 @@ pip install -e .
 
 ## Usage
 
-Initialize a new repository:
 ```shell
+# Transform the current directory into a PyVCS repository:
 pyvcs init
-```
 
-Add a file to version control:
-```shell
+# Create an empty repository in a new subdirectory called ＜directory＞
+pyvcs init <directory>
+
+# Add a file to version control:
 pyvcs add filename.txt
-```
 
-Commit changes:
-```shell
+# Commit changes:
 pyvcs commit "Commit Message"
-```
 
-View differences:
-```shell
+# View differences:
 pyvcs diff filename.txt
 ```
 

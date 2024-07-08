@@ -24,16 +24,32 @@ def list_files(directory):
             
 class VersionControl:
     def __init__(self, root_dir):
-        self.root_dir = root_dir
-        self.pv_dir = os.path.join(root_dir, '.pyvcs')
-        self.objects_dir = os.path.join(self.pv_dir, 'objects')
-        self.refs_dir = os.path.join(self.pv_dir, 'refs')
-        self.init()
+        self.root_dir = os.path.abspath(root_dir)
+        self.pyvcs_dir = os.path.join(self.root_dir, '.pyvcs')
+        self.objects_dir = os.path.join(self.pyvcs_dir, 'objects')
+        self.refs_dir = os.path.join(self.pyvcs_dir, 'refs')
 
-    def init(self):
-        os.makedirs(self.pv_dir, exist_ok=True)
-        os.makedirs(self.objects_dir, exist_ok=True)
-        os.makedirs(self.refs_dir, exist_ok=True)
+    @classmethod
+    def init(cls, root_dir , directory_name = None):
+        if directory_name:
+            new_dir = os.path.join(root_dir, directory_name)
+            if os.path.exists(new_dir):
+                return False, f"'{directory_name}' already exists. \nNavigate to it and run 'pyvcs init', or choose a different name."
+            os.makedirs(new_dir)
+            print(f"Created {directory_name}")
+            root_dir = new_dir
+            
+        vc = cls(root_dir)
+        
+        if os.path.exists(vc.pyvcs_dir):
+            return False, "PyVCS directory already initialized."
+        
+        os.makedirs(vc.pyvcs_dir, exist_ok=True)
+        os.makedirs(vc.objects_dir, exist_ok=True)
+        os.makedirs(vc.refs_dir, exist_ok=True)
+        
+        directory_name = os.path.abspath(root_dir)
+        return True, f"Initialized empty PyVCS repository in {directory_name}\\.pyvcs"
 
     def add(self, file_path):
         content = read_file(file_path)
@@ -50,7 +66,7 @@ class VersionControl:
         }
 
         for file_path in list_files(self.root_dir):
-            if not file_path.startswith(self.pv_dir):
+            if not file_path.startswith(self.pyvcs_dir):
                 relative_path = os.path.relpath(file_path, self.root_dir)
                 hash_value = self.add(file_path)
                 commit_obj['files'][relative_path] = hash_value
