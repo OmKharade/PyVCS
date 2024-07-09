@@ -14,9 +14,7 @@ def main():
         success, message = VersionControl.init(os.getcwd(), directory_name)
         print(message)
         if success:
-            print("You can now begin version controlling your project!")
-        else:
-            print("To start version controlling your project, use 'pyvcs add <file>' and 'pyvcs commit'")
+            print("You can now begin version controlling your project!")\
             
     else:
         vc = VersionControl(os.getcwd())
