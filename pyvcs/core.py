@@ -29,27 +29,33 @@ class VersionControl:
         self.objects_dir = os.path.join(self.pyvcs_dir, 'objects')
         self.refs_dir = os.path.join(self.pyvcs_dir, 'refs')
 
+
     @classmethod
     def init(cls, root_dir , directory_name = None):
+        root_dir = cls._create_repo_directory(root_dir, directory_name)
+        vc = cls(root_dir)
+        if not os.path.exists(vc.pyvcs_dir):
+            cls._create_pyvcs_structure(vc.pyvcs_dir, vc.objects_dir, vc.refs_dir)
+            return True, f"Initialized empty PyVCS repository in {vc.pyvcs_dir}"
+        return False, "PyVCS directory already initialized."
+
+
+    @staticmethod
+    def _create_repo_directory(root_dir, directory_name):
         if directory_name:
             new_dir = os.path.join(root_dir, directory_name)
-            if os.path.exists(new_dir):
-                return False, f"'{directory_name}' already exists. \nNavigate to it and run 'pyvcs init', or choose a different name."
-            os.makedirs(new_dir)
-            print(f"Created {directory_name}")
+            if not os.path.exists(new_dir):
+                os.makedirs(new_dir)
             root_dir = new_dir
-            
-        vc = cls(root_dir)
-        
-        if os.path.exists(vc.pyvcs_dir):
-            return False, "PyVCS directory already initialized."
-        
-        os.makedirs(vc.pyvcs_dir, exist_ok=True)
-        os.makedirs(vc.objects_dir, exist_ok=True)
-        os.makedirs(vc.refs_dir, exist_ok=True)
-        
-        directory_name = os.path.abspath(root_dir)
-        return True, f"Initialized empty PyVCS repository in {directory_name}\\.pyvcs"
+        return root_dir
+
+
+    @staticmethod
+    def _create_pyvcs_structure(pyvcs_dir, objects_dir, refs_dir):
+        os.makedirs(pyvcs_dir, exist_ok=True)
+        os.makedirs(objects_dir, exist_ok=True)
+        os.makedirs(refs_dir, exist_ok=True)
+
 
     def add(self, file_path):
         content = read_file(file_path)
