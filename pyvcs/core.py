@@ -62,7 +62,21 @@ class VersionControl:
         hash_value = calculate_hash(content)
         object_path = os.path.join(self.objects_dir, hash_value)
         write_file(object_path, content)
+        self._update_index(file_path, hash_value)
         return hash_value
+    
+    
+    def _update_index(self, file_path, hash_value):
+        index_path = os.path.join(self.pyvcs_dir, 'index')
+        if os.path.exists(index_path):
+            with open(index_path, 'r') as f:
+                index = json.load(f)
+        else:
+            index = {}
+        index[os.path.relpath(file_path, self.root_dir)] = hash_value
+        with open(index_path, 'w') as f:
+            json.dump(index, f)
+    
 
     def commit(self, message):
         commit_obj = {
