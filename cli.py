@@ -4,7 +4,7 @@ import os
 
 def main():
     parser = argparse.ArgumentParser(description="PyVCS: A simple version control system")
-    parser.add_argument('command', choices=['init', 'add', 'commit', 'diff', 'status'])
+    parser.add_argument('command', choices=['init', 'add', 'commit', 'diff', 'status', 'log'])
     parser.add_argument('args', nargs='*', help='Additional arguments')
 
     args = parser.parse_args()
@@ -47,6 +47,16 @@ def main():
             print("\nChanged files: ")
             for file, status in changed_files.items():
                 print(f"{file}: {status}")
+                
+        elif args.command == 'log':
+            for commit_hash, commit_obj in vc.log():
+                print(f"Commit: {commit_hash}")
+                print(f"Message: {commit_obj['message']}")
+                print(f"Timestamp: {commit_obj['timestamp']}")
+                print("Files:")
+                for file, hash_value in commit_obj['files'].items():
+                    print(f"{file}: {hash_value}")
+                print()
 
 if __name__ == "__main__":
     main()

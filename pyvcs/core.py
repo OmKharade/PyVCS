@@ -79,17 +79,19 @@ class VersionControl:
     
 
     def commit(self, message):
-        commit_obj = self._create_commit_object(message)
+        parent_hash = self._get_head_commit()
+        commit_obj = self._create_commit_object(message, parent_hash)
         commit_hash = self._write_commit_object(commit_obj)
         self._update_head(commit_hash)
         return commit_hash
 
 
-    def _create_commit_object(self, message):
+    def _create_commit_object(self, message, parent_hash):
         commit_obj = {
             'message': message,
             'timestamp': datetime.now().isoformat(),
-            'files': self._get_staged_files()
+            'files': self._get_staged_files(),
+            'parent': parent_hash,
         }
         return commit_obj
 
@@ -132,6 +134,27 @@ class VersionControl:
                 if hash_value != staged_files[rel_path]:
                     changed_files[rel_path] = 'Modified'
         return changed_files
+
+
+    def log(self):
+        commit_hash = self._get_head_commit()
+        while commit_hash:
+            commit_obj = self._read_commit_object(commit_hash)
+            yield commit_hash, commit_obj
+            commit_hash = commit_obj.get('parent')
+            
+    
+    def _get_head_commit(self):
+        head_path = os.path.join(self.refs_dir, 'HEAD')
+        if os.path.exists(head_path):
+            return read_file(head_path).decode().strip()
+        return None
+
+    def _read_commit_object(self, commit_hash):
+        commit_path = os.path.join(self.objects_dir, commit_hash)
+        commit_content = read_file(commit_path)
+        return json.loads(commit_content.decode())
+
 
     def diff(self, file_path):
         current_content = read_file(file_path)
