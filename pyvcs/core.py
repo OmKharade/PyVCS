@@ -113,6 +113,26 @@ class VersionControl:
         write_file(head_path, commit_hash.encode())
 
 
+    def status(self):
+        staged_files = self._get_staged_files()
+        changed_files = self._get_changed_files(staged_files)
+        return staged_files, changed_files  
+    
+    def _get_changed_files(self, staged_files):
+        changed_files = {}
+        for file_path in list_files(self.root_dir):
+            rel_path = os.path.relpath(file_path, self.root_dir)
+            if rel_path.startswith('.pyvcs'):
+                continue
+            if rel_path not in staged_files:
+                changed_files[rel_path] = 'Untracked'
+            else:
+                content = read_file(file_path)
+                hash_value = calculate_hash(content)
+                if hash_value != staged_files[rel_path]:
+                    changed_files[rel_path] = 'Modified'
+        return changed_files
+
     def diff(self, file_path):
         current_content = read_file(file_path)
         current_hash = calculate_hash(current_content)

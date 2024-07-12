@@ -4,7 +4,7 @@ import os
 
 def main():
     parser = argparse.ArgumentParser(description="PyVCS: A simple version control system")
-    parser.add_argument('command', choices=['init', 'add', 'commit', 'diff'])
+    parser.add_argument('command', choices=['init', 'add', 'commit', 'diff', 'status'])
     parser.add_argument('args', nargs='*', help='Additional arguments')
 
     args = parser.parse_args()
@@ -38,6 +38,15 @@ def main():
                 return
             diff_result = vc.diff(args.args[0])
             print(diff_result)
+            
+        elif args.command == 'status':
+            staged_files, changed_files = vc.status()
+            print("Staged files: ")
+            for file, hash_value in staged_files.items():
+                print(f"{file}: {hash_value}")
+            print("\nChanged files: ")
+            for file, status in changed_files.items():
+                print(f"{file}: {status}")
 
 if __name__ == "__main__":
     main()

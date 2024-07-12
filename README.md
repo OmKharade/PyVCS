@@ -41,6 +41,9 @@ pyvcs add filename.txt
 # Commit changes:
 pyvcs commit "Commit Message"
 
+# View the status of the working directory. Track Changes
+pyvcs status
+
 # View differences:
 pyvcs diff filename.txt
 ```
