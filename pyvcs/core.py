@@ -79,27 +79,39 @@ class VersionControl:
     
 
     def commit(self, message):
+        commit_obj = self._create_commit_object(message)
+        commit_hash = self._write_commit_object(commit_obj)
+        self._update_head(commit_hash)
+        return commit_hash
+
+
+    def _create_commit_object(self, message):
         commit_obj = {
             'message': message,
             'timestamp': datetime.now().isoformat(),
-            'files': {}
+            'files': self._get_staged_files()
         }
+        return commit_obj
 
-        for file_path in list_files(self.root_dir):
-            if not file_path.startswith(self.pyvcs_dir):
-                relative_path = os.path.relpath(file_path, self.root_dir)
-                hash_value = self.add(file_path)
-                commit_obj['files'][relative_path] = hash_value
 
+    def _get_staged_files(self):
+        index_path = os.path.join(self.pyvcs_dir, 'index')
+        with open(index_path, 'r') as f:
+            return json.load(f)
+    
+    
+    def _write_commit_object(self, commit_obj):
         commit_content = json.dumps(commit_obj).encode()
         commit_hash = calculate_hash(commit_content)
         commit_path = os.path.join(self.objects_dir, commit_hash)
         write_file(commit_path, commit_content)
+        return commit_hash
 
+
+    def _update_head(self, commit_hash):
         head_path = os.path.join(self.refs_dir, 'HEAD')
         write_file(head_path, commit_hash.encode())
 
-        return commit_hash
 
     def diff(self, file_path):
         current_content = read_file(file_path)

@@ -2,6 +2,8 @@
 
 PyVCS is a lightweight version control system implemented in Python. The aim with this project is to understand of how version control systems work under the hood and have fun implementing it in Python.
 
+The goal is to peek underneath the abstraction and reimplement the abstraction from scratch, to gain deep understanding of what's being abstracted.
+
 ## Features
 
 - Initialize a new repository
