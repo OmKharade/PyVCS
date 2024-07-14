@@ -2,6 +2,7 @@ import os
 import hashlib
 import json
 from datetime import datetime
+import difflib
 
 def read_file(file_path):
     with open(file_path, 'rb') as f:
@@ -157,25 +158,30 @@ class VersionControl:
 
 
     def diff(self, file_path):
-        current_content = read_file(file_path)
-        current_hash = calculate_hash(current_content)
+        last_commit_content = self._get_last_commit_file_content(file_path)
+        if last_commit_content is None:
+            return f"No previous commit for file {file_path}"
+        current_content = read_file(file_path).decode().splitlines(keepends=True)
+        last_commit_content = last_commit_content.decode().splitlines(keepends=True)
+        diff_result = difflib.unified_diff(
+            last_commit_content,
+            current_content,
+            fromfile=f"a/{file_path}",
+            tofile=f"b/{file_path}",
+            lineterm=''
+        )
+        return '\n'.join(diff_result)
 
-        head_path = os.path.join(self.refs_dir, 'HEAD')
-        if not os.path.exists(head_path):
-            return "No previous commit found."
-
-        head_commit_hash = read_file(head_path).decode().strip()
-        head_commit_path = os.path.join(self.objects_dir, head_commit_hash)
-        head_commit_content = read_file(head_commit_path)
-        head_commit_obj = json.loads(head_commit_content.decode())
-
-        relative_path = os.path.relpath(file_path, self.root_dir)
-        if relative_path not in head_commit_obj['files']:
-            return "File not found in the previous commit."
-
-        previous_hash = head_commit_obj['files'][relative_path]
-        if current_hash == previous_hash:
-            return "No changes detected."
-
-        previous_content = read_file(os.path.join(self.objects_dir, previous_hash))
-        return f"Changes detected. Previous hash: {previous_hash}, Current hash: {current_hash}"
+        
+    def _get_last_commit_file_content(self, file_path):
+        commit_hash = self._get_head_commit()
+        if not commit_hash:
+            return None
+        commit_obj = self._read_commit_object(commit_hash)
+        staged_files = commit_obj.get('files', {})
+        rel_path = os.path.relpath(file_path, self.root_dir)
+        if rel_path in staged_files:
+            file_hash = staged_files[rel_path]
+            object_path = os.path.join(self.objects_dir, file_hash)
+            return read_file(object_path)
+        return None

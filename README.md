@@ -2,13 +2,17 @@
 
 PyVCS is a lightweight version control system implemented in Python. The aim with this project is to understand of how version control systems work under the hood and have fun implementing it in Python.
 
+Implemented initialisation of repository and all the snapshotting commands used in version control
+
 The goal is to peek underneath the abstraction and reimplement the abstraction from scratch, to gain deep understanding of what's being abstracted.
 
 ## Features
 
 - Initialize a new repository
 - Add files to version control
+- Show status of untracked and modified files
 - Commit changes with messages
+- Show commit histroy
 - View differences between current files and last commit
 
 
@@ -44,6 +48,9 @@ pyvcs commit "Commit Message"
 # View the status of the working directory. Track Changes
 pyvcs status
 
+# View commit history
+pyvcs log
+
 # View differences:
 pyvcs diff filename.txt
 ```
@@ -62,13 +69,12 @@ pyvcs/
 
 ### Future Versions 
 
-- Improve diff algorithm (line-by-line changes)
 - Branching and Merging
 - Remote Repositories
 
 ### Contributing
 
-This is the very very early version of the project. I decided to push this to motivate myself and hold myself accountable to keep working on this
+This is an early version of the project. I decided to push this to motivate myself and hold myself accountable to keep working on this
 
 Having said, of course suggestions and discussions are welcome ! Feel free to open an issue or submit a PR
 

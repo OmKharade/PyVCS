@@ -33,10 +33,7 @@ def main():
             print(f"Created commit with hash {commit_hash}")
 
         elif args.command == 'diff':
-            if not args.args:
-                print("Error: Please specify a file to diff")
-                return
-            diff_result = vc.diff(args.args[0])
+            diff_result = vc.diff(args.file)
             print(diff_result)
             
         elif args.command == 'status':
