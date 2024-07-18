@@ -4,56 +4,56 @@ import os
 
 def main():
     parser = argparse.ArgumentParser(description="PyVCS: A simple version control system")
-    parser.add_argument('command', choices=['init', 'add', 'commit', 'diff', 'status', 'log'])
-    parser.add_argument('args', nargs='*', help='Additional arguments')
-
+    subparsers = parser.add_subparsers(dest='command')
+    
+    subparsers.add_parser('init').add_argument('directory', nargs='?', default=os.getcwd())
+    subparsers.add_parser('add').add_argument('file')
+    subparsers.add_parser('commit').add_argument('message')
+    subparsers.add_parser('status')
+    subparsers.add_parser('log')
+    subparsers.add_parser('diff').add_argument('file')
+    
     args = parser.parse_args()
+    execute_command(args)
+    
+def execute_command(args):
+    vc = VersionControl(os.getcwd())
+    command = args.command
 
-    if args.command == 'init':
-        directory_name = args.args[0] if args.args else None
-        success, message = VersionControl.init(os.getcwd(), directory_name)
+    if command == 'init':
+        success, message = VersionControl.init(os.getcwd(), args.directory)
         print(message)
-        if success:
-            print("You can now begin version controlling your project!")\
-            
-    else:
-        vc = VersionControl(os.getcwd())
-        if args.command == 'add':
-            if not args.args:
-                print("Error: Please specify a file to add")
-                return
-            hash_value = vc.add(args.args[0])
-            print(f"Added file {args.args[0]} with hash {hash_value}")
 
-        elif args.command == 'commit':
-            if not args.args:
-                print("Error: Please provide a commit message")
-                return
-            commit_hash = vc.commit(args.args[0])
-            print(f"Created commit with hash {commit_hash}")
+    elif command == 'add':
+        hash_value = vc.add(args.file)
+        print(f"Added file {args.file} with hash {hash_value}")
 
-        elif args.command == 'diff':
-            diff_result = vc.diff(args.file)
-            print(diff_result)
-            
-        elif args.command == 'status':
-            staged_files, changed_files = vc.status()
-            print("Staged files: ")
-            for file, hash_value in staged_files.items():
+    elif command == 'commit':
+        commit_hash = vc.commit(args.message)
+        print(f"Created commit with hash {commit_hash}")
+
+    elif command == 'status':
+        staged_files, changed_files = vc.status()
+        print("Staged files:")
+        for file, hash_value in staged_files.items():
+            print(f"{file}: {hash_value}")
+        print("\nChanged files:")
+        for file, status in changed_files.items():
+            print(f"{file}: {status}")
+
+    elif command == 'log':
+        for commit_hash, commit_obj in vc.log():
+            print(f"Commit: {commit_hash}")
+            print(f"Message: {commit_obj['message']}")
+            print(f"Timestamp: {commit_obj['timestamp']}")
+            print("Files:")
+            for file, hash_value in commit_obj['files'].items():
                 print(f"{file}: {hash_value}")
-            print("\nChanged files: ")
-            for file, status in changed_files.items():
-                print(f"{file}: {status}")
-                
-        elif args.command == 'log':
-            for commit_hash, commit_obj in vc.log():
-                print(f"Commit: {commit_hash}")
-                print(f"Message: {commit_obj['message']}")
-                print(f"Timestamp: {commit_obj['timestamp']}")
-                print("Files:")
-                for file, hash_value in commit_obj['files'].items():
-                    print(f"{file}: {hash_value}")
-                print()
+            print()
+
+    elif command == 'diff':
+        diff_result = vc.diff(args.file)
+        print(diff_result)
 
 if __name__ == "__main__":
     main()
