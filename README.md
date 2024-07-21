@@ -6,6 +6,8 @@ Implemented initialisation of repository and all the snapshotting commands used 
 
 The goal is to peek underneath the abstraction and reimplement the abstraction from scratch, to gain deep understanding of what's being abstracted.
 
+Check the [blog](https://omkharade.github.io/blog-pyvcs/) for more details.
+
 ## Features
 
 - Initialize a new repository
